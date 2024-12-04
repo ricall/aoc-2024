@@ -7,7 +7,7 @@ class Day04Search(text: String) {
     // ---------------- PART ONE
 
     private fun getXMASCount(position: Point) = listOf(NW, N, NE, E, SE, S, SW, W)
-        .map { direction -> textAt(position, direction)}
+        .map { direction -> textAt(position, direction, 4)}
         .count { text -> text == "XMAS" }
 
     private fun countXMASAt(position: Point) = when(charAt(position)) {
@@ -62,7 +62,7 @@ class Day04Search(text: String) {
         return lines[y][x]
     }
 
-    private fun textAt(position: Point, direction: Point, length: Int = 4): String {
+    private fun textAt(position: Point, direction: Point, length: Int): String {
         var currentPoint = position
 
         return (0..<length).map {
@@ -76,8 +76,7 @@ class Day04Search(text: String) {
         var total = 0
         for (y in lines.indices) {
             for (x in lines[y].indices) {
-                val position = Point(y, x)
-                total += totalAt(position)
+                total += totalAt(Point(y, x))
             }
         }
         return total
