@@ -1,4 +1,4 @@
-class WordSearch(text: String) {
+class Day04Search(text: String) {
     private val lines = text.lines()
 
     private fun getXMASCount(position: Pair<Int, Int>) = listOf(
