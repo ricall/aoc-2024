@@ -1,49 +1,60 @@
+private data class Point(val y: Int, val x: Int) {
+    operator fun plus(other: Point) = Point(y + other.y, x + other.x)
+}
+
 class Day04Search(text: String) {
-    private val lines = text.lines()
 
-    private fun getXMASCount(position: Pair<Int, Int>) = listOf(
-        stringAt(position, Pair(-1, -1)),
-        stringAt(position, Pair(-1, 0)),
-        stringAt(position, Pair(-1, 1)),
-        stringAt(position, Pair(0, 1)),
-        stringAt(position, Pair(1, 1)),
-        stringAt(position, Pair(1, 0)),
-        stringAt(position, Pair(1, -1)),
-        stringAt(position, Pair(0, -1)),
-    ).count { word -> word == "XMAS" }
+    // ---------------- PART ONE
 
-    private fun countXMASAt(position: Pair<Int, Int>) = when(charAt(position)) {
+    private fun getXMASCount(position: Point) = listOf(NW, N, NE, E, SE, S, SW, W)
+        .map { direction -> textAt(position, direction)}
+        .count { text -> text == "XMAS" }
+
+    private fun countXMASAt(position: Point) = when(charAt(position)) {
         'X' -> getXMASCount(position)
         else -> 0
     }
 
-    fun countXMAS() = visitAll(::countXMASAt)
+    fun countXMAS() = totalFor(::countXMASAt)
 
-    // -----------------
+    // ----------------- PART TWO
 
-    private fun findMAS(position: Pair<Int, Int>): Boolean {
-        val (y, x) = position
+    private fun isMASCross(position: Point): Boolean {
         return listOf(
-            stringAt(Pair(y - 1, x - 1), Pair(1, 1), 3),
-            stringAt(Pair(y + 1, x - 1), Pair(-1, 1), 3),
+            textAt(position + NW, SE, 3),
+            textAt(position + SW, NE, 3),
         ).all { word -> word == "MAS" || word == "SAM" }
     }
 
-    private fun countMASCrossAt(position: Pair<Int, Int>) = when (findMAS(position)) {
+    private fun getMASCrossCountAt(position: Point) = when (isMASCross(position)) {
         true -> 1
         else -> 0
     }
 
-    fun countMASCrosses() = visitAll { position ->
-        when (charAt(position)) {
-            'A' -> countMASCrossAt(position)
-            else -> 0
-        }
+    private fun smartCountMASCrossAt(position: Point) = when (charAt(position)) {
+        'A' -> getMASCrossCountAt(position)
+        else -> 0
     }
 
-    // -----------------
+    fun countMASCrosses() = totalFor(::smartCountMASCrossAt)
 
-    private fun charAt(position: Pair<Int, Int>): Char {
+    // ----------------- HELPERS
+
+    private val lines = text.lines()
+
+    companion object {
+        // Compass directions as Delta y,x
+        private val NW = Point(-1, -1)
+        private val N = Point(-1, 0)
+        private val NE = Point(-1, 1)
+        private val E = Point(0, 1)
+        private val SE = Point(1, 1)
+        private val S = Point(1, 0)
+        private val SW = Point(1, -1)
+        private val W = Point(0, -1)
+    }
+
+    private fun charAt(position: Point): Char {
         val (y, x) = position
         if (y < 0 || y >= lines.size || x < 0 || x >= lines[y].length) {
             return ' '
@@ -51,25 +62,22 @@ class Day04Search(text: String) {
         return lines[y][x]
     }
 
-    private fun stringAt(position: Pair<Int, Int>, delta: Pair<Int, Int>, length: Int = 4): String {
-        var (y, x) = position
-        val (dy, dx) = delta
+    private fun textAt(position: Point, direction: Point, length: Int = 4): String {
+        var currentPoint = position
 
         return (0..<length).map {
-            val ch = charAt(Pair(y, x))
-            y += dy
-            x += dx
-
+            val ch = charAt(currentPoint)
+            currentPoint += direction
             ch
         }.joinToString(separator = "")
     }
 
-    private inline fun visitAll(sink: (Pair<Int, Int>) -> Int): Int {
+    private inline fun totalFor(totalAt: (Point) -> Int): Int {
         var total = 0
         for (y in lines.indices) {
             for (x in lines[y].indices) {
-                val position = Pair(y, x)
-                total += sink(position)
+                val position = Point(y, x)
+                total += totalAt(position)
             }
         }
         return total
