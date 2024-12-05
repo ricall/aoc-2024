@@ -41,8 +41,8 @@ private fun sumValidMiddlePageNumbers(text: String): Int {
 fun isValidUpdate(update: List<Int>, pageOrdering: Map<Int, List<Int>>): Boolean {
     val printed = mutableSetOf<Int>()
     for (page in update) {
-        val required = pageOrdering.getOrDefault(page, emptyList()).filter(update::contains)
-        if (!required.all { printed.contains(it) }) {
+        val requiredPages = pageOrdering.getOrDefault(page, emptyList()).filter(update::contains)
+        if (!requiredPages.all(printed::contains)) {
             return false
         }
         printed.add(page)
