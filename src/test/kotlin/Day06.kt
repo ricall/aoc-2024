@@ -53,7 +53,7 @@ class Lab {
         this.height = lines.size
     }
 
-    private constructor(obstructions: MutableList<Point>, guard: Guard, width: Int, height: Int) {
+    private constructor(obstructions: List<Point>, guard: Guard, width: Int, height: Int) {
         this.obstructions = obstructions
         this.guard = guard
         this.width = width
@@ -105,13 +105,8 @@ class Lab {
         return false
     }
 
-    private fun addObstruction(position: Point): Lab {
-        val newObstructions = mutableListOf<Point>()
-        newObstructions.addAll(obstructions)
-        newObstructions.add(position)
-
-        return Lab(obstructions = newObstructions, guard = guard, width = width, height = height)
-    }
+    private fun addObstruction(position: Point) =
+        Lab(obstructions = obstructions + position, guard = guard, width = width, height = height)
 
     fun countLoopsByAddingASingleObstacle() = getAllVisitedLocations()
         .parallelStream()
