@@ -50,7 +50,7 @@ fun isValidUpdate(update: List<Int>, pageOrdering: Map<Int, List<Int>>): Boolean
     return true
 }
 
-fun middlePageNumber(update: List<Int>) = update[update.size / 2]
+private fun middlePageNumber(update: List<Int>) = update[update.size / 2]
 
 private fun sumReorderedInvalidMiddlePageNumbers(text: String): Int {
     val (pageOrdering, updates) = parseInput(text.lines())
