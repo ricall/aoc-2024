@@ -6,7 +6,7 @@ import java.io.File
 import kotlin.test.assertEquals
 
 data class Point(val x: Int, val y: Int) {
-    operator fun plus(other: Direction) = Point(x + other.delta.x, y + other.delta.y)
+    operator fun plus(direction: Direction) = Point(x + direction.delta.x, y + direction.delta.y)
 }
 
 enum class Direction(val delta: Point) {
@@ -27,7 +27,7 @@ private data class Guard(val position: Point, val direction: Direction)
 
 class Lab {
     private val obstructions: List<Point>
-    private var guard: Guard
+    private val guard: Guard
     private val width: Int
     private val height: Int
 
