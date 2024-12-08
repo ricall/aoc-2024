@@ -5,9 +5,9 @@ import org.ricall.day07.Operator.*
 import java.io.File
 import kotlin.test.assertEquals
 
-data class Calibration(val target: Long, val values: List<Long>)
+private data class Calibration(val target: Long, val values: List<Long>)
 
-enum class Operator(val evaluate: (Long, Long) -> Long) {
+private enum class Operator(val evaluate: (Long, Long) -> Long) {
     ADD({ x, y -> x + y }),
     MULTIPLY({ x, y -> x * y }),
     CONCAT({ x, y ->
@@ -21,14 +21,14 @@ enum class Operator(val evaluate: (Long, Long) -> Long) {
     })
 }
 
-fun parseInput(text: String) = text.lines().filter(String::isNotBlank).map { line ->
+private fun parseInput(text: String) = text.lines().filter(String::isNotBlank).map { line ->
     val (target, valueText) = line.split(':')
     val values = valueText.trim().split(' ').map { it.toLong() }
 
     Calibration(target = target.toLong(), values = values)
 }
 
-fun checkCalibrationByRecursion(operators: List<Operator>, target: Long, current: Long, values: List<Long>): Boolean {
+private fun checkCalibrationByRecursion(operators: List<Operator>, target: Long, current: Long, values: List<Long>): Boolean {
     if (values.isEmpty()) {
         return target == current
     }
@@ -44,22 +44,22 @@ fun checkCalibrationByRecursion(operators: List<Operator>, target: Long, current
     }
 }
 
-fun checkCalibration(operators: List<Operator>, calibration: Calibration): Boolean {
+private fun checkCalibration(operators: List<Operator>, calibration: Calibration): Boolean {
     val values = calibration.values.toMutableList()
     val current = values.removeFirst()
 
     return checkCalibrationByRecursion(operators, calibration.target, current, values)
 }
 
-fun sumOfValidCalibrationPartOne(text: String) = parseInput(text)
+private fun sumOfValidCalibrationPartOne(text: String) = parseInput(text)
     .filter { checkCalibration(listOf(ADD, MULTIPLY), it) }
     .sumOf { it.target }
 
-fun sumOfValidCalibrationPartTwo(text: String) = parseInput(text)
+private fun sumOfValidCalibrationPartTwo(text: String) = parseInput(text)
     .filter { checkCalibration(listOf(ADD, MULTIPLY, CONCAT), it) }
     .sumOf { it.target }
 
-val TEST_DATA = """
+private val TEST_DATA = """
     |190: 10 19
     |3267: 81 40 27
     |83: 17 5

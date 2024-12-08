@@ -5,11 +5,11 @@ import org.ricall.day06.Direction.*
 import java.io.File
 import kotlin.test.assertEquals
 
-data class Point(val x: Int, val y: Int) {
+private data class Point(val x: Int, val y: Int) {
     operator fun plus(direction: Direction) = Point(x + direction.delta.x, y + direction.delta.y)
 }
 
-enum class Direction(val delta: Point) {
+private enum class Direction(val delta: Point) {
     NORTH(Point(0, -1)),
     EAST(Point(1, 0)),
     SOUTH(Point(0, 1)),
@@ -25,7 +25,7 @@ enum class Direction(val delta: Point) {
 
 private data class Guard(val position: Point, val direction: Direction)
 
-class Lab {
+private class Lab {
     private val obstructions: List<Point>
     private val guard: Guard
     private val width: Int

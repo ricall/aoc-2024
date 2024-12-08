@@ -1,3 +1,5 @@
+package org.ricall.dayxx
+
 import org.junit.jupiter.api.Test
 
 class Template {
