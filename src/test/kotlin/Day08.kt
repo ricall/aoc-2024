@@ -75,11 +75,7 @@ private fun countUniqueLocations(text: String, strategy: Strategy): Int {
     antennas.values.forEach { antennaList ->
         val antennaCount = antennaList.size
         (0 until antennaCount-1).forEach { index1 ->
-            val p1 = antennaList[index1]
-            (index1 + 1 until antennaCount).forEach { index2 ->
-                val p2 = antennaList[index2]
-                strategy.accept(p1, p2, add)
-            }
+            (index1 + 1 until antennaCount).forEach { strategy.accept(antennaList[index1], antennaList[it], add) }
         }
     }
     return locations.size
