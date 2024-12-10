@@ -18,7 +18,8 @@ private val TEST_DATA = """
 private data class Point(val x: Int, val y: Int) {
     operator fun plus(direction: Direction) = Point(x + direction.delta.x, y + direction.delta.y)
 }
-private enum class Direction(val delta:Point) {
+
+private enum class Direction(val delta: Point) {
     NORTH(Point(0, -1)),
     EAST(Point(1, 0)),
     SOUTH(Point(0, 1)),
@@ -35,7 +36,7 @@ private class Topography(input: String) {
         trailheads = mutableListOf<Point>()
         map = input.lines().mapIndexed { y, line ->
             line.mapIndexed { x, c ->
-                val height = if (c == '.') -1 else c.digitToInt()
+                val height = c.digitToInt()
                 if (height == 0) {
                     trailheads.add(Point(x, y))
                 }
@@ -48,7 +49,7 @@ private class Topography(input: String) {
 
     private fun isValid(p: Point) = p.x in 0..<width && p.y in 0..<height
 
-    fun uniqueEndpoints(start: Point): Set<Point> {
+    private fun uniqueEndpoints(start: Point): Set<Point> {
         val height = map[start.y][start.x]
         if (height == 9) {
             return setOf(start)
@@ -60,6 +61,7 @@ private class Topography(input: String) {
             .flatMap(::uniqueEndpoints)
             .toSet()
     }
+    fun countUniqueEndpoints(start: Point) = uniqueEndpoints(start).size
 
     fun countPaths(start: Point): Int {
         val height = map[start.y][start.x]
@@ -81,7 +83,7 @@ class Day10 {
     @Test
     fun `part 1 test data`() {
         val model = Topography(TEST_DATA)
-        val result = model.sumTrailheadScores { point -> model.uniqueEndpoints(point).size }
+        val result = model.sumTrailheadScores(model::countUniqueEndpoints)
 
         assertEquals(36, result)
     }
@@ -89,7 +91,7 @@ class Day10 {
     @Test
     fun `part 1`() {
         val model = Topography(File("./inputs/day10.txt").readText())
-        val result = model.sumTrailheadScores { point -> model.uniqueEndpoints(point).size }
+        val result = model.sumTrailheadScores(model::countUniqueEndpoints)
 
         assertEquals(796, result)
     }
