@@ -4,10 +4,10 @@ import org.junit.jupiter.api.Test
 import java.io.File
 import kotlin.test.assertEquals
 
-private val TEST_DATA = "2333133121414131402"
-private val FREE = Integer.MIN_VALUE
+private const val TEST_DATA = "2333133121414131402"
+private const val FREE = Integer.MIN_VALUE
 
-class Disk(diskMap: String) {
+private class Disk(diskMap: String) {
     val blocks = parseInput(diskMap).toMutableList()
 
     fun compact(): Disk {
