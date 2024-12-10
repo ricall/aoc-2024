@@ -1,13 +1,14 @@
 package org.ricall.dayxx
 
 import org.junit.jupiter.api.Test
+import kotlin.test.assertEquals
 
 private val TEST_DATA = """""".trimMargin()
 
 class Template {
     @Test
     fun `part 1 test data`() {
-        TODO()
+        assertEquals(0, TEST_DATA.length)
     }
 
     @Test
