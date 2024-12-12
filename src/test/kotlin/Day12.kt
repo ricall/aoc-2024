@@ -23,14 +23,9 @@ class Day12 {
     }
 
     enum class Direction(val delta: Point) {
-        NORTH(Point(0, -1)),
-        EAST(Point(1, 0)),
-        SOUTH(Point(0, 1)),
-        WEST(Point(-1, 0));
+        NORTH(Point(0, -1)), EAST(Point(1, 0)), SOUTH(Point(0, 1)), WEST(Point(-1, 0));
 
-        operator fun plus(direction: Direction) = Point(this.delta.x + direction.delta.x, this.delta.y + direction.delta.y)
-
-        fun rotateRight() = when(this) {
+        fun rotateLeft() = when(this) {
             NORTH -> WEST
             EAST -> NORTH
             SOUTH -> EAST
@@ -45,11 +40,8 @@ class Day12 {
             val ch = points[point]
             visited.add(point)
             add(point)
-            addAll(listOf(NORTH, SOUTH, WEST, EAST)
-                .map { point + it }
-                .filter { points[it] == ch }
-                .filter { !visited.contains(it) }
-                .flatMap { point -> getRegion(point, visited) })
+            addAll(listOf(NORTH, SOUTH, WEST, EAST).map { point + it }.filter { points[it] == ch }
+                .filter { !visited.contains(it) }.flatMap { point -> getRegion(point, visited) })
         }
 
         private fun getRegions() = sequence {
@@ -65,25 +57,21 @@ class Day12 {
         }
 
         private fun calculatePerimeter(region: Collection<Point>) = region.sumOf { point ->
-            listOf(NORTH, SOUTH, WEST, EAST)
-                .map { direction -> point + direction }
-                .filter { p -> !region.contains(p) }
-                .size
+            listOf(NORTH, SOUTH, WEST, EAST).map { direction -> point + direction }
+                .filter { p -> !region.contains(p) }.size
         }
 
         private fun countCorners(point: Point, direction: Direction): Int {
             val ch = points[point]
             var corners = 0
 
-            val right = direction.rotateRight()
-            if (points[point + direction] != ch && points[point + right] != ch) {
-                // Counts an edge surrounding this point (direction & right)
-                corners++
+            val left = direction.rotateLeft()
+            if (points[point + direction] != ch && points[point + left] != ch) {
+                corners++ // Counts an edge surrounding this point (direction & left)
             }
 
-            if (points[point + direction + right] != ch && points[point + direction] == ch && points[point + right] == ch) {
-                // Counts an edge between point -> diagonal (direction + right)
-                corners++
+            if (points[point + direction + left] != ch && points[point + direction] == ch && points[point + left] == ch) {
+                corners++ // Counts an edge between point -> diagonal (direction + left)
             }
             return corners
         }
