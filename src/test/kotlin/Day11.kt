@@ -8,16 +8,11 @@ class Day11 {
     private val TEST_DATA = "125 17"
 
     class StoneCounter(input: String) {
-        private val stones: List<Long>
-        private val transformCache = mutableMapOf<Long, List<Long>>()
-
-        init {
-            stones = parseInput(input)
-            transformCache[0] = listOf(1)
-        }
+        private val stones = parseInput(input)
+        private val rules = mutableMapOf(0L to listOf(1L))
 
         fun observeStones(blinks: Int): Long {
-            var stoneCounts = buildMap { stones.forEach { stone -> set(stone, (get(stone) ?: 0L) + 1) } }
+            var stoneCounts = stones.groupBy { it }.mapValues { it.value.size.toLong() }
 
             repeat(blinks) { stoneCounts = blink(stoneCounts) }
             return stoneCounts.values.sum()
@@ -25,21 +20,19 @@ class Day11 {
 
         private fun blink(stoneCounts: Map<Long, Long>) = buildMap<Long, Long> {
             stoneCounts.forEach { (stone, count) ->
-                var transformedStones = transformCache[stone]
-                if (transformedStones == null) {
-                    val stoneString = stone.toString()
-                    val length = stoneString.length
-                    if (length % 2 == 0) {
-                        transformedStones = listOf(
-                            stoneString.substring(0, length / 2).toLong(),
-                            stoneString.substring(length / 2).toLong()
+                rules.getOrPut(stone, {
+                    val stoneAsString = stone.toString()
+                    val length = stoneAsString.length
+                    when (length % 2 == 0) {
+                        true -> listOf(
+                            stoneAsString.substring(0, length / 2).toLong(),
+                            stoneAsString.substring(length / 2).toLong()
                         )
-                    } else {
-                        transformedStones = listOf(stone * 2024)
+                        false -> listOf(stone * 2024)
                     }
-                    transformCache[stone] = transformedStones
+                }).forEach { newStone ->
+                    set(newStone, (get(newStone) ?: 0) + count)
                 }
-                transformedStones.forEach { newStone -> set(newStone, (get(newStone) ?: 0) + count) }
             }
         }
 
