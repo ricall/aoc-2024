@@ -19,6 +19,17 @@ private val SMALL_TEST_DATA = """
     |
     |<^^>>>vv<v>>v<<""".trimMargin()
 
+private val SMALL_TEST_DATA2 = """
+    |#######
+    |#...#.#
+    |#.....#
+    |#..OO@#
+    |#..O..#
+    |#.....#
+    |#######
+    |
+    |<vv<<^^<<^^""".trimMargin()
+
 private val TEST_DATA = """
     |##########
     |#..O..O.O#
@@ -41,18 +52,6 @@ private val TEST_DATA = """
     |<><^^>^^^<><vvvvv^v<v<<>^v<v>v<<^><<><<><<<^^<<<^<<>><<><^^^>^^<>^>v<>
     |^^>vv<^v^v<vv>^<><v<^v>^^^>>>^^vvv^>vvv<>>>^<^>>>>>^<<^v>^vvv<>^<><<v>
     |v^^>>><<^^<>>^v^<v^vv<>v^<<>^<^v^v><^<<<><<^<v><v<>vv>>v><v^<vv<>v^<<^""".trimMargin()
-
-
-private val SMALL_TEST_DATA2 = """
-    |#######
-    |#...#.#
-    |#.....#
-    |#..OO@#
-    |#..O..#
-    |#.....#
-    |#######
-    |
-    |<vv<<^^<<^^""".trimMargin()
 
 private data class Vec2(val x: Int, val y: Int) {
     operator fun plus(other: Vec2) = Vec2(x + other.x, y + other.y)
@@ -91,6 +90,15 @@ private class Warehouse(input: String, parseMode: ParseMode = NORMAL) {
     }
 
     private fun processMove(points: List<Vec2>, move: Direction): Boolean {
+        val movePoints = {
+            points.forEach { point ->
+                val (x, y) = point + move.delta
+                map[y][x] = map[point.y][point.x]
+                map[point.y][point.x] = EMPTY
+            }
+            true
+        }
+
         val adjacent = buildSet<Vec2> {
             points.forEach { point ->
                 val newPoint = point + move.delta
@@ -106,28 +114,16 @@ private class Warehouse(input: String, parseMode: ParseMode = NORMAL) {
                 }
             }
         }
-
         if (adjacent.all { map[it.y][it.x] == EMPTY }) {
-            points.forEach { point ->
-                val (x, y) = point + move.delta
-                map[y][x] = map[point.y][point.x]
-                map[point.y][point.x] = EMPTY
-            }
-            return true
+            return movePoints()
         }
-
         if (adjacent.any { map[it.y][it.x] == WALL }) {
             return false
         }
 
         val nonEmptyAdjacent = adjacent.filter { map[it.y][it.x] != EMPTY }
         if (processMove(nonEmptyAdjacent, move)) {
-            points.forEach { point ->
-                val (x, y) = point + move.delta
-                map[y][x] = map[point.y][point.x]
-                map[point.y][point.x] = EMPTY
-            }
-            return true
+            return movePoints()
         }
         return false
     }
@@ -160,66 +156,60 @@ private class Warehouse(input: String, parseMode: ParseMode = NORMAL) {
     }
 
     init {
-        var shouldParseMoves = false
+        val (gridText, movesText) = input.split("\n\n")
         var robotLocation: Vec2? = null
 
-        input.lines().forEachIndexed { y, line ->
-            if (line.isBlank()) {
-                shouldParseMoves = true
-            } else when (shouldParseMoves) {
-                false -> {
-                    map.add(buildList {
-                        line.forEachIndexed { x, ch ->
-                            when (ch) {
-                                '#' -> {
-                                    add(WALL)
-                                    if (parseMode == DOUBLE_WIDTH) {
-                                        add(WALL)
-                                    }
-                                }
-
-                                'O' -> {
-                                    if (parseMode == NORMAL) {
-                                        add(BOX)
-                                    } else {
-                                        add(BOX_LEFT)
-                                        add(BOX_RIGHT)
-                                    }
-                                }
-
-                                '@' -> {
-                                    add(ROBOT)
-                                    if (parseMode == NORMAL) {
-                                        robotLocation = Vec2(x, y)
-                                    } else {
-                                        robotLocation = Vec2(x * 2, y)
-                                        add(EMPTY)
-                                    }
-                                }
-
-                                else -> {
-                                    add(EMPTY)
-                                    if (parseMode == DOUBLE_WIDTH) {
-                                        add(EMPTY)
-                                    }
-                                }
+        gridText.lines().forEachIndexed { y, line ->
+            map.add(buildList {
+                line.forEachIndexed { x, ch ->
+                    when (ch) {
+                        '#' -> {
+                            add(WALL)
+                            if (parseMode == DOUBLE_WIDTH) {
+                                add(WALL)
                             }
                         }
-                    }.toMutableList())
-                }
 
-                true -> {
-                    moves.addAll(line.map { ch ->
-                        when (ch) {
-                            '<' -> LEFT
-                            '^' -> UP
-                            'v' -> DOWN
-                            '>' -> RIGHT
-                            else -> throw IllegalArgumentException("Unknown direction $ch")
+                        'O' -> {
+                            if (parseMode == NORMAL) {
+                                add(BOX)
+                            } else {
+                                add(BOX_LEFT)
+                                add(BOX_RIGHT)
+                            }
                         }
-                    })
+
+                        '@' -> {
+                            add(ROBOT)
+                            if (parseMode == NORMAL) {
+                                robotLocation = Vec2(x, y)
+                            } else {
+                                robotLocation = Vec2(x * 2, y)
+                                add(EMPTY)
+                            }
+                        }
+
+                        else -> {
+                            add(EMPTY)
+                            if (parseMode == DOUBLE_WIDTH) {
+                                add(EMPTY)
+                            }
+                        }
+                    }
                 }
-            }
+            }.toMutableList())
+        }
+
+        movesText.lines().forEach { line ->
+            moves.addAll(line.map { ch ->
+                when (ch) {
+                    '<' -> LEFT
+                    '^' -> UP
+                    'v' -> DOWN
+                    '>' -> RIGHT
+                    else -> throw IllegalArgumentException("Unknown direction $ch")
+                }
+            })
         }
         robot = robotLocation ?: throw IllegalArgumentException("No robot found")
     }
