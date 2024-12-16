@@ -1,12 +1,26 @@
+import Direction.*
+
 private data class Point(val y: Int, val x: Int) {
     operator fun plus(other: Point) = Point(y + other.y, x + other.x)
+    operator fun plus(direction: Direction) = Point(y + direction.vector.y, x + direction.vector.x)
+}
+
+private enum class Direction(val vector: Point) {
+    NW(Point(-1, -1)),
+    N(Point(-1, 0)),
+    NE(Point(-1, 1)),
+    E(Point(0, 1)),
+    SE(Point(1, 1)),
+    S(Point(1, 0)),
+    SW(Point(1, -1)),
+    W(Point(0, -1)),
 }
 
 class Day04Search(text: String) {
 
     // ---------------- PART ONE
 
-    private fun getXMASCount(position: Point) = listOf(NW, N, NE, E, SE, S, SW, W)
+    private fun getXMASCount(position: Point) = Direction.entries
         .map { direction -> textAt(position, direction, 4)}
         .count { text -> text == "XMAS" }
 
@@ -42,18 +56,6 @@ class Day04Search(text: String) {
 
     private val lines = text.lines()
 
-    companion object {
-        // Compass directions as Delta y,x
-        private val NW = Point(-1, -1)
-        private val N = Point(-1, 0)
-        private val NE = Point(-1, 1)
-        private val E = Point(0, 1)
-        private val SE = Point(1, 1)
-        private val S = Point(1, 0)
-        private val SW = Point(1, -1)
-        private val W = Point(0, -1)
-    }
-
     private fun charAt(position: Point): Char {
         val (y, x) = position
         if (y < 0 || y >= lines.size || x < 0 || x >= lines[y].length) {
@@ -62,7 +64,7 @@ class Day04Search(text: String) {
         return lines[y][x]
     }
 
-    private fun textAt(position: Point, direction: Point, length: Int): String {
+    private fun textAt(position: Point, direction: Direction, length: Int): String {
         var currentPoint = position
 
         return (0..<length).map {

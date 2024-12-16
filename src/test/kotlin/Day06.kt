@@ -69,7 +69,7 @@ private class Lab {
         }
 
         var direction = guard.direction
-        while (true) {
+        repeat(3) {
             direction = direction.turnRight()
             val newPosition = guard.position + direction
 
@@ -77,6 +77,7 @@ private class Lab {
                 return Guard(newPosition, direction)
             }
         }
+        throw IllegalStateException("Cannot advance $guard")
     }
 
     private fun getAllVisitedLocations(): Set<Point> {
