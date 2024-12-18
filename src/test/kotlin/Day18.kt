@@ -30,24 +30,29 @@ private class Memory(input: String, val width: Int, val height: Int) {
     }
 
     fun minSteps(): Int? {
-        val visited = mutableSetOf<Point>()
-        val queue = mutableListOf(Point(0, 0))
         var steps = 0
-        while (queue.isNotEmpty()) {
-            repeat(queue.size) { // Breadth First Search
-                val point = queue.removeFirst()
-                if (point == end) {
-                    return steps
+        val visited = mutableSetOf<Point>()
+        var edgePoints = listOf(Point(0, 0))
+        while (edgePoints.isNotEmpty()) {
+            edgePoints = buildList {
+                edgePoints.forEach { point ->
+                    if (point == end) {
+                        return steps
+                    }
+                    sequenceOf(EAST, NORTH, WEST, SOUTH)
+                        .map { point + it }
+                        .filter {
+                            it.x in 0..<width
+                                    && it.y in 0..<height
+                                    && !corruptMemory.contains(it)
+                                    && !visited.contains(it)
+                        }
+                        .forEach {
+                            add(it)
+                            visited.add(it)
+                        }
                 }
-                sequenceOf(EAST, NORTH, WEST, SOUTH)
-                    .map { point + it }
-                    .filter {
-                        it.x in 0..<width && it.y in 0..<height && !corruptMemory.contains(it) && !visited.contains(it)
-                    }
-                    .forEach {
-                        queue.add(it)
-                        visited.add(it)
-                    }
+
             }
             steps++
         }
@@ -113,7 +118,8 @@ class Day18 {
 
     @Test
     fun `part 2 test data`() {
-        val point = Memory(TEST_DATA, 7, 7).findCorruptionThatBlocksExit()
+        val point = Memory(TEST_DATA, 7, 7)
+            .findCorruptionThatBlocksExit()
 
         assertEquals(Point(6, 1), point)
     }
