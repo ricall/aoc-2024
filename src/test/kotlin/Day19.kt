@@ -33,7 +33,7 @@ private class LinenLayout(input: String) {
     private fun numberOfArrangementsForDesigns(): List<Long> =
         designs.map { design -> countLinenArrangements(patterns, design) }
 
-    fun validDesignPatternCount() = numberOfArrangementsForDesigns().filter { it > 0 }.count()
+    fun validDesignPatternCount() = numberOfArrangementsForDesigns().count { it > 0 }
 
     fun totalTowelArrangements() = numberOfArrangementsForDesigns().sum()
 }
