@@ -8,7 +8,7 @@ class Template {
 
     @Test
     fun `part 1 test data`() {
-        assertEquals(0, TEST_DATA.length)
+        assertEquals(1, 0)
     }
 
     @Test
