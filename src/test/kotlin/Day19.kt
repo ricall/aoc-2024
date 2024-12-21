@@ -16,7 +16,7 @@ private class LinenLayout(input: String) {
     }
 
     private fun countLinenArrangements(steps: List<String>, design: String, count: Long = 0): Long =
-        cache.getOrElse(design) {
+        cache.getOrPut(design) {
             if (design.isEmpty()) {
                 return 1
             }
@@ -26,8 +26,8 @@ private class LinenLayout(input: String) {
                     arrangements += countLinenArrangements(steps, design.substring(step.length))
                 }
             }
-            cache[design] = arrangements // getOrPut doesn't play nicely with recursion
-            return arrangements
+            cache[design] = arrangements
+            arrangements
         }
 
     private fun numberOfArrangementsForDesigns(): List<Long> =
