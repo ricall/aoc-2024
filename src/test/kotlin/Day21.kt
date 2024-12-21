@@ -2,14 +2,15 @@ package org.ricall.day21
 
 import org.junit.jupiter.api.Test
 import java.io.File
+import kotlin.math.min
 import kotlin.test.assertEquals
 
 private data class Point(val x: Int, val y: Int) {
     fun addDx(amount: Int) = Point(x + amount, y)
-    fun addDy(amount: Int) = Point( x, y + amount)
+    fun addDy(amount: Int) = Point(x, y + amount)
 }
 
-private class Keypad(buttons: String, val pathLength: ((String) -> Long)? = null) {
+private class Keypad(buttons: String) {
     private val keypad = buildMap {
         buttons.chunked(3).forEachIndexed { y, line ->
             line.forEachIndexed { x, ch -> put(ch, Point(x, y)) }
@@ -17,23 +18,22 @@ private class Keypad(buttons: String, val pathLength: ((String) -> Long)? = null
     }
     private val invalidButton = keypad['X']
 
-    fun minimumButtonCountFor(text: String, depth: Int = 1): Long {
-        if (depth == 0) {
-            return text.length.toLong()
-        }
-        var current = keypad['A']!!
-        var result = 0L
-        for (ch in text) {
-            val target = keypad[ch]!!
-            result += minimumNumberOfButtonPresses(CacheableRequest(current, target, depth))
-            current = target
-        }
-        return result
+    private var calculateMinimumButtonPresses: (String, Int) -> Long = this::minimumButtonCountFor
+    fun withMinimumButtonLengthCalculator(calculator: (String, Int) -> Long): Keypad {
+        this.calculateMinimumButtonPresses = calculator
+        return this
+    }
+
+    fun minimumButtonCountFor(text: String, depth: Int = 1): Long = when(depth) {
+        0 -> text.length.toLong()
+        else ->text.fold(keypad['A']!! to 0L) { (current, total), ch ->
+            val next = keypad[ch]!!
+            next to total + minimumNumberOfButtonPresses(CacheableRequest(current, next, depth))
+        }.second
     }
 
     private data class CacheableRequest(val start: Point, val end: Point, val depth: Int)
     private val cache = mutableMapOf<CacheableRequest, Long>()
-
     private fun minimumNumberOfButtonPresses(request: CacheableRequest) = cache.getOrPut(request) {
         val (start, end, depth) = request
         var result = Long.MAX_VALUE
@@ -42,24 +42,16 @@ private class Keypad(buttons: String, val pathLength: ((String) -> Long)? = null
         while (todo.isNotEmpty()) {
             val (current, path) = todo.removeFirst()
             when (current) {
-                end -> {
-                    val buttonPresses = when(pathLength == null) {
-                        true -> minimumButtonCountFor("${path}A", depth - 1)
-                        false -> pathLength.invoke("${path}A")
-                    }
-                    result = Math.min(result, buttonPresses)
-                }
-                invalidButton -> {}
+                end -> result = min(result, calculateMinimumButtonPresses("${path}A", depth - 1))
+                invalidButton -> { /* IGNORE */ }
                 else -> {
-                    if (current.x < end.x) {
-                        todo += current.addDx(1) to "$path>"
-                    } else if (current.x > end.x) {
-                        todo += current.addDx(-1) to "$path<"
+                    when {
+                        current.x < end.x -> todo += current.addDx(1) to "$path>"
+                        current.x > end.x -> todo += current.addDx(-1) to "$path<"
                     }
-                    if (current.y < end.y) {
-                        todo += current.addDy(1) to "${path}v"
-                    } else if (current.y > end.y) {
-                        todo += current.addDy(-1) to "$path^"
+                    when {
+                        current.y < end.y -> todo += current.addDy(1) to "${path}v"
+                        current.y > end.y -> todo += current.addDy(-1) to "$path^"
                     }
                 }
             }
@@ -68,12 +60,13 @@ private class Keypad(buttons: String, val pathLength: ((String) -> Long)? = null
     }
 }
 
-private fun minimumButtonCountFor(input: String, robotCount: Int = 2): Long {
-    val directionalKeypad = Keypad("X^A<v>")
-    val numericKeypad = Keypad("789456123X0A") { path -> directionalKeypad.minimumButtonCountFor(path, robotCount) }
+private fun createKeypad() = Keypad("789456123X0A")
+    .withMinimumButtonLengthCalculator(Keypad("X^A<v>")::minimumButtonCountFor)
 
+private fun scoreInputs(input: String, robotCount: Int = 3): Long {
+    val keypad = createKeypad()
     return input.lines().sumOf { code ->
-        val buttonCount = numericKeypad.minimumButtonCountFor(code)
+        val buttonCount = keypad.minimumButtonCountFor(code, robotCount)
         val codeAsNumber = code.substring(0, code.length - 1).toInt()
 
         codeAsNumber * buttonCount
@@ -91,38 +84,35 @@ class Day21 {
 
     @Test
     fun `part 1 - single`() {
-        val directionalKeypad = Keypad("X^A<v>")
-        val numericKeypad = Keypad("789456123X0A", { path -> directionalKeypad.minimumButtonCountFor(path, 2)})
-
-        val result = numericKeypad.minimumButtonCountFor("029A")
+        val result = createKeypad().minimumButtonCountFor("029A", 3)
 
         assertEquals(68, result)
     }
 
     @Test
     fun `part 1 - test data`() {
-        val result = minimumButtonCountFor(TEST_DATA)
+        val result = scoreInputs(TEST_DATA)
 
         assertEquals(126384, result)
     }
 
     @Test
     fun `part 1`() {
-        val result = minimumButtonCountFor(File("./inputs/day21.txt").readText())
+        val result = scoreInputs(File("./inputs/day21.txt").readText())
 
         assertEquals(219366, result)
     }
 
     @Test
     fun `part 2 test data`() {
-        val result = minimumButtonCountFor(TEST_DATA, 25)
+        val result = scoreInputs(TEST_DATA, 26)
 
         assertEquals(154115708116294, result)
     }
 
     @Test
     fun `part 2`() {
-        val result = minimumButtonCountFor(File("./inputs/day21.txt").readText(), 25)
+        val result = scoreInputs(File("./inputs/day21.txt").readText(), 26)
 
         assertEquals(271631192020464, result)
     }
