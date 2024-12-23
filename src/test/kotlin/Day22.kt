@@ -4,18 +4,18 @@ import org.junit.jupiter.api.Test
 import java.io.File
 import kotlin.test.assertEquals
 
-const val MAX_SECRET_PER_DAY = 2000
+private const val MAX_SECRET_PER_DAY = 2000
 
-const val BITMASK = 0xffffff
-fun nextSecretNumber(number: Int): Int {
+private const val BITMASK = 0xffffff
+private fun nextSecretNumber(number: Int): Int {
     val part1 = number shl 6 xor number and BITMASK
     val part2 = part1 shr 5 xor part1 and BITMASK
     return part2 shl 11 xor part2 and BITMASK
 }
 
-typealias SecretSequence = Sequence<Int>
+private typealias SecretSequence = Sequence<Int>
 
-fun secretSequence(seed: Int) = sequence {
+private fun secretSequence(seed: Int) = sequence {
     var current = seed
     repeat(MAX_SECRET_PER_DAY) {
         val next = nextSecretNumber(current)
@@ -24,25 +24,25 @@ fun secretSequence(seed: Int) = sequence {
     }
 }
 
-fun solvePartOneSingle(seed: Int) = secretSequence(seed).last().toLong()
-fun solvePartOne(input: String) = input.lines()
+private fun solvePartOneSingle(seed: Int) = secretSequence(seed).last().toLong()
+private fun solvePartOne(input: String) = input.lines()
     .map(String::toInt)
     .sumOf(::solvePartOneSingle)
 
-typealias DeltaList = List<Int>
-typealias Price = Int
+private typealias DeltaList = List<Int>
+private typealias Price = Int
 
-fun convertSecretsToDeltaListToPrice(sequence: SecretSequence) = sequence.map { it % 10 }
+private fun convertSecretsToDeltaListToPrice(sequence: SecretSequence) = sequence.map { it % 10 }
     .zipWithNext { a, b -> b to b - a }
     .windowed(4) { (a, b, c, d) -> listOf(a.second, b.second, c.second, d.second) to d.first }
     .groupingBy { it.first }
     .fold({ _, value -> value.second }, { _, a, _ -> a })
 
-fun mergeDeltaLists(target: MutableMap<DeltaList, Price>, source: Map<DeltaList, Price>) = target.apply {
+private fun mergeDeltaLists(target: MutableMap<DeltaList, Price>, source: Map<DeltaList, Price>) = target.apply {
     source.forEach { (deltaList, price) -> merge(deltaList, price, Int::plus) }
 }
 
-fun solvePartTwo(input: String) = input.lines()
+private fun solvePartTwo(input: String) = input.lines()
     .map(String::toInt)
     .map(::secretSequence)
     .map(::convertSecretsToDeltaListToPrice)
