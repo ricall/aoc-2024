@@ -129,9 +129,6 @@ class Day20 {
     @Test
     fun `part 1 test data`() {
         val cheats = solve(TEST_DATA, 2)
-//        cheats.entries
-//            .sortedBy { it.key }
-//            .forEach { println("There are ${it.value} cheats to save ${it.key} picoseconds") }
         val result = cheats.entries.filter { it.key >= 40 }.sumOf { it.value }
 
         assertEquals(2, result)
@@ -148,9 +145,6 @@ class Day20 {
     @Test
     fun `part 2 test data`() {
         val cheats = solve(TEST_DATA, 20)
-//        cheats.entries.sortedBy { it.key }
-//            .filter { it.key >= 50 }
-//            .forEach { println("There are ${it.value} cheats to save ${it.key} picoseconds") }
         val result = cheats.entries.filter { it.key >= 50 }.sumOf { it.value }
 
         assertEquals(285, result)

@@ -1,3 +1,5 @@
+package org.ricall.day02
+
 import org.junit.jupiter.api.Test
 import java.io.BufferedReader
 import java.io.FileInputStream

@@ -1,7 +1,7 @@
-package org.ricall.dayxx
+package org.ricall.day18
 
 import org.junit.jupiter.api.Test
-import org.ricall.dayxx.Direction.*
+import org.ricall.day18.Direction.*
 import java.io.File
 import kotlin.test.assertEquals
 

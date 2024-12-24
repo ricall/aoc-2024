@@ -1,4 +1,4 @@
-package org.ricall.day9
+package org.ricall.day09
 
 import org.junit.jupiter.api.Test
 import java.io.File
